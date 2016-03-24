@@ -1,9 +1,11 @@
 package com.woowahan.riders.spring.practice.blog.service;
 
 import com.woowahan.riders.spring.practice.SpringPracticeApplication;
+import com.woowahan.riders.spring.practice.blog.domain.Comment;
 import com.woowahan.riders.spring.practice.blog.domain.Post;
 import com.woowahan.riders.spring.practice.blog.domain.Site;
 import com.woowahan.riders.spring.practice.blog.domain.Writer;
+import com.woowahan.riders.spring.practice.blog.repository.CommentRepository;
 import com.woowahan.riders.spring.practice.blog.repository.PostRepository;
 import com.woowahan.riders.spring.practice.blog.repository.SiteRepository;
 import com.woowahan.riders.spring.practice.blog.repository.WriterRepository;
@@ -16,7 +18,6 @@ import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
-import javax.annotation.Resource;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -35,21 +36,27 @@ import static org.junit.Assert.assertTrue;
 public class SimplePostServiceTest {
     PostPublishService postPublishService;
     PostSubscriptionService postSubscriptionService;
+    CommentOfPostService commentOfPostService;
     WriterRepository writerRepository;
     SiteRepository siteRepository;
     PostRepository postRepository;
+    CommentRepository commentRepository;
 
     @Autowired
     public void init(PostPublishService publishService,
                      PostSubscriptionService postSubscriptionService,
+                     CommentOfPostService commentOfPostService,
                      WriterRepository writerRepository,
                      SiteRepository siteRepository,
-                     PostRepository postRepository) {
+                     PostRepository postRepository,
+                     CommentRepository commentRepository) {
         this.postPublishService = publishService;
         this.postSubscriptionService = postSubscriptionService;
+        this.commentOfPostService = commentOfPostService;
         this.writerRepository = writerRepository;
         this.siteRepository = siteRepository;
         this.postRepository = postRepository;
+        this.commentRepository = commentRepository;
     }
 
     @Test
@@ -109,5 +116,65 @@ public class SimplePostServiceTest {
         List<Post> posts = postSubscriptionService.readAll(endpoint);
         // Then
         assertThat(posts.size(), is(4));
+    }
+
+    @Test
+    public void testLoadComments() throws Exception {
+        // Given
+        Writer writer = writerRepository.save(new Writer());
+        String endpoint = "sonegy";
+        Site sonegy = siteRepository.save(Site.of(writer, endpoint));
+        Post post = postRepository.save(
+                Post.of(writer, sonegy, "title", "content")
+        );
+        commentRepository.save(Arrays.asList(
+                Comment.of(post, "comment1"),
+                Comment.of(post, "comment2")
+        ));
+        // When
+        List<Comment> comments = commentOfPostService.loadComments(post.getId());
+        // Then
+        assertThat(comments.size(), is(2));
+        assertThat(comments.get(0).getContent(), is("comment1"));
+        assertThat(comments.get(1).getContent(), is("comment2"));
+    }
+
+    @Test
+    public void testSaveComment() throws Exception {
+        // Given
+        Writer writer = writerRepository.save(new Writer());
+        String endpoint = "sonegy";
+        Site sonegy = siteRepository.save(Site.of(writer, endpoint));
+        Post post = postRepository.save(
+                Post.of(writer, sonegy, "title", "content")
+        );
+        // When
+        Optional<Comment> optional = commentOfPostService.writeComment(post.getId(), "comment1");
+        // Then
+        assertTrue(optional.isPresent());
+        optional.ifPresent(comment -> {
+            assertThat(comment.getContent(), is("comment1"));
+            assertThat(comment.getPost(), is(post));
+        });
+    }
+
+    @Test
+    public void testUpdateComment() throws Exception {
+        // Given
+        Writer writer = writerRepository.save(new Writer());
+        String endpoint = "sonegy";
+        Site sonegy = siteRepository.save(Site.of(writer, endpoint));
+        Post post = postRepository.save(
+                Post.of(writer, sonegy, "title", "content")
+        );
+        Comment comment = commentRepository.save(Comment.of(post, "comment1"));
+        // When
+        Optional<Comment> optional = commentOfPostService.updateComment(comment.getId(), "updated");
+        // Then
+        assertTrue(optional.isPresent());
+        optional.ifPresent(updatedComment -> {
+            assertThat(updatedComment.getContent(), is("updated"));
+            assertThat(updatedComment.getPost(), is(post));
+        });
     }
 }

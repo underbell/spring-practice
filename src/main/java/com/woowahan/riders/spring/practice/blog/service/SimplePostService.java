@@ -2,6 +2,7 @@ package com.woowahan.riders.spring.practice.blog.service;
 
 import com.mysema.query.jpa.impl.JPAQuery;
 import com.woowahan.riders.spring.practice.blog.domain.*;
+import com.woowahan.riders.spring.practice.blog.repository.CommentRepository;
 import com.woowahan.riders.spring.practice.blog.repository.PostRepository;
 import com.woowahan.riders.spring.practice.blog.repository.SiteRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,12 +19,17 @@ import java.util.Optional;
  */
 @Service
 @Transactional
-public class SimplePostService implements PostPublishService, PostSubscriptionService {
+public class SimplePostService implements
+        PostPublishService,
+        PostSubscriptionService,
+        CommentOfPostService {
 
     @Autowired
     private PostRepository postRepository;
     @Autowired
     private SiteRepository siteRepository;
+    @Autowired
+    private CommentRepository commentRepository;
     @PersistenceContext
     private EntityManager em;
 
@@ -51,5 +57,30 @@ public class SimplePostService implements PostPublishService, PostSubscriptionSe
                 .innerJoin(post.site, site)
                 .where(site.endpoint.eq(endpoint))
                 .list(post);
+    }
+
+    @Override
+    public List<Comment> loadComments(Long postId) {
+        QComment comment = QComment.comment;
+        QPost post = QPost.post;
+        return new JPAQuery(em)
+                .from(comment)
+                .innerJoin(comment.post, post)
+                .where(post.id.eq(postId))
+                .list(comment);
+    }
+
+    @Override
+    public Optional<Comment> writeComment(Long postId, String content) {
+        return Optional.ofNullable(commentRepository.save(
+                Comment.of(Optional.of(postRepository.findOne(postId)).get(), content))
+        );
+    }
+
+    @Override
+    public Optional<Comment> updateComment(Long commentId, String content) {
+        Optional<Comment> commentOptional = Optional.ofNullable(commentRepository.findOne(commentId));
+        commentOptional.ifPresent(comment -> comment.update(content));
+        return commentOptional;
     }
 }

@@ -5,6 +5,7 @@ import com.gargoylesoftware.htmlunit.html.*;
 import com.woowahan.riders.spring.practice.SpringPracticeApplication;
 import com.woowahan.riders.spring.practice.blog.domain.Post;
 import com.woowahan.riders.spring.practice.blog.domain.Writer;
+import com.woowahan.riders.spring.practice.blog.service.CommentOfPostService;
 import com.woowahan.riders.spring.practice.blog.service.DummyAuthenticatedService;
 import com.woowahan.riders.spring.practice.blog.service.PostPublishService;
 import com.woowahan.riders.spring.practice.blog.service.PostSubscriptionService;
@@ -41,6 +42,8 @@ public class WebBlogPostControllerTest {
     PostSubscriptionService postSubscriptionService;
     @Autowired
     PostPublishService postPublishService;
+    @Autowired
+    CommentOfPostService commentOfPostService;
     @Autowired
     DummyAuthenticatedService dummyAuthenticatedService;
 
@@ -110,12 +113,18 @@ public class WebBlogPostControllerTest {
         // Given
         Writer writer = dummyAuthenticatedService.getWriterBy("sonegy");
         Post post = postPublishService.writePost(writer, "sonegy", "t", "c").orElseThrow(RuntimeException::new);
+        commentOfPostService.writeComment(post.getId(), "comment1");
+        commentOfPostService.writeComment(post.getId(), "comment2");
         // When
         HtmlPage postPage = webClient.getPage("http://localhost/sonegy/posts/" + post.getId());
         // Then
         assertThat(postPage, is(notNullValue()));
         HtmlElement postElement = postPage.getHtmlElementById("post");
+        HtmlElement commentsElement = postPage.getHtmlElementById("comments");
         assertThat(postElement.querySelector("dd._title").getTextContent(), is("t"));
         assertThat(postElement.querySelector("pre._content").getTextContent(), is("c"));
+        assertThat(commentsElement.querySelectorAll("li div").get(0).getTextContent(), is("comment1"));
+        assertThat(commentsElement.querySelectorAll("li div").get(1).getTextContent(), is("comment2"));
+
     }
 }

@@ -45,4 +45,9 @@ public class Comment {
     public Date getCreatedDateTime() {
         return createdDateTime;
     }
+
+    public Comment update(String content) {
+        this.content = content;
+        return this;
+    }
 }

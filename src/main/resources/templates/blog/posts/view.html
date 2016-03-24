@@ -2,13 +2,35 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <title>Blog Posts</title>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 </head>
 <body>
-    <!--/*@thymesVar id="post" type="com.woowahan.riders.spring.practice.blog.controller.dto.PostRequest"*/-->
-    <dl id="post">
-        <dt>제목</dt><dd class="_title" th:text="${post.title}"></dd>
-        <dt>내용</dt><dd><pre class="_content" th:text="${post.content}"></pre></dd>
-    </dl>
+<!--/*@thymesVar id="post" type="com.woowahan.riders.spring.practice.blog.controller.dto.PostRequest"*/-->
+<dl id="post">
+    <dt>제목</dt>
+    <dd class="_title" th:text="${post.title}"></dd>
+    <dt>내용</dt>
+    <dd>
+        <pre class="_content" th:text="${post.content}"></pre>
+    </dd>
+</dl>
+의견을 적어주세요.
+<form id="commentForm" action="#" th:action="@{{id}/comments/form(id=${post.id})}" th:method="POST">
+    <textarea th:name="content"></textarea>
+    <input type="submit" />
+</form>
+<ol id="comments">
+    <!--/*@thymesVar id="comments" type="com.woowahan.riders.spring.practice.blog.controller.dto.CommentsResponse"*/-->
+    <!--/*@thymesVar id="comment" type="com.woowahan.riders.spring.practice.blog.controller.dto.CommentsResponse.CommentResponse"*/-->
+    <li th:each="comment,iterStat : ${comments.comments}">
+        <div class="_comment" th:text="${comment.content}">테스트문장.</div>
+        <form action="#" method="PUT" th:action="@{{postId}/comments/form(postId=${comment.postId})}" th:method="PUT">
+            <input type="hidden" name="id" th:value="${comment.id}" />
+            <input type="hidden" name="postId" th:value="${comment.postId}" />
+            <textarea name="content" th:value="${comment.content}">테스트문장.</textarea>
+            <input type="submit" />
+        </form>
+    </li>
+</ol>
 </body>
 </html>
