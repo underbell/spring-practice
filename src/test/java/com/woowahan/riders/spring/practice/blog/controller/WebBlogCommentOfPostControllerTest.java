@@ -15,6 +15,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.web.OrderedHiddenHttpMethodFilter;
+import org.springframework.boot.context.web.OrderedHttpPutFormContentFilter;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
@@ -31,12 +33,14 @@ import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
+import static org.hamcrest.core.IsNot.not;
+import static org.hamcrest.core.IsNull.nullValue;
 
 /**
  * Created by leejaeil on 2016. 3. 22..
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(classes = SpringPracticeApplication.class)
+@SpringApplicationConfiguration(classes = {SpringPracticeApplication.class})
 @WebAppConfiguration
 @Transactional
 public class WebBlogCommentOfPostControllerTest {
@@ -58,7 +62,10 @@ public class WebBlogCommentOfPostControllerTest {
 
     @Before
     public void setUp() throws Exception {
-        mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
+        mockMvc = MockMvcBuilders.webAppContextSetup(wac)
+                .addFilter(new OrderedHiddenHttpMethodFilter())
+                .addFilter(new OrderedHttpPutFormContentFilter())
+                .build();
         webClient = MockMvcWebClientBuilder.mockMvcSetup(mockMvc).useMockMvcForHosts().build();
     }
 
@@ -92,10 +99,14 @@ public class WebBlogCommentOfPostControllerTest {
         HtmlPage postPage = webClient.getPage("http://localhost/sonegy/posts/" + post.getId());
         // When
         HtmlElement commentsEl = postPage.getHtmlElementById("comments");
-        HtmlForm form = commentsEl.querySelector("form");
+        HtmlForm form = commentsEl.querySelector("form"); // 첫번째 form을 꺼냄.
+        assertThat(form, not(nullValue()));
         form.getTextAreaByName("content").setText("updated comment");
         HtmlSubmitInput submit = form.getOneHtmlElementByAttribute("input", "type", "submit");
-        submit.click();
+        HtmlPage click = submit.click();
         // Then
+        assertThat(click.getWebResponse().getStatusCode(), is(200));
+        assertThat(click.getUrl().getPath(), is("/sonegy/posts/" + post.getId()));
+        assertThat(commentOfPostService.loadComments(post.getId()).get(0).getContent(), is("updated comment"));
     }
 }

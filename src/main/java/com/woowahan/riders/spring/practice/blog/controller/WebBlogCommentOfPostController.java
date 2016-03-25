@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.view.RedirectView;
 
+import javax.servlet.http.HttpServletRequest;
+
 /**
  * Created by leejaeil on 2016. 3. 22..
  */
@@ -20,6 +22,20 @@ public class WebBlogCommentOfPostController {
     static final Logger logger = LoggerFactory.getLogger(WebBlogCommentOfPostController.class);
     @Autowired
     private CommentOfPostService commentOfPostService;
+
+
+    @RequestMapping(value = "form", method = RequestMethod.PUT)
+    public RedirectView updateComment(
+            @PathVariable("endpoint") String endpoint,
+            CommentRequest comment) {
+        logger.debug("updateComment:{}", comment);
+        return commentOfPostService.updateComment(comment.getId(), comment.getContent())
+                .map(writtenComment -> writtenComment.getPost())
+                .map(post -> post.getId())
+                .map(_postId -> "../../" + _postId)
+                .map(RedirectView::new)
+                .orElseThrow(RuntimeException::new);
+    }
 
     /**
      * Post 에 대한 Comment 등록.
@@ -34,20 +50,14 @@ public class WebBlogCommentOfPostController {
     public RedirectView writeComment(
             @PathVariable("endpoint") String endpoint,
             @PathVariable("postId") Long postId,
-            CommentRequest comment) {
+            CommentRequest comment,
+            HttpServletRequest request) {
+        logger.debug("writeComment:{}", comment);
         return commentOfPostService.writeComment(postId, comment.getContent())
                 .map(writtenComment -> writtenComment.getPost())
                 .map(post -> post.getId())
                 .map(_postId -> "../../" + _postId)
                 .map(RedirectView::new)
                 .orElseThrow(RuntimeException::new);
-    }
-
-    @RequestMapping(value = "form", method = RequestMethod.PUT)
-    public void updateComment(
-            @PathVariable("endpoint") String endpoint,
-            CommentRequest comment) {
-        logger.debug("{}", comment);
-        commentOfPostService.updateComment(comment.getId(), comment.getContent());
     }
 }
