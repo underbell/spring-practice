@@ -5,9 +5,14 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 </head>
 <body>
-
+<!--/*@thymesVar id="posts" type="com.woowahan.riders.spring.practice.blog.controller.dto.PostsResponse"*/-->
+<p>
+    <a href="form.html" th:href="@{posts/form}">글 쓰기</a>
+</p>
+<p>
+    모든 포스트
+</p>
 <ul id="posts">
-    <!--/*@thymesVar id="posts" type="com.woowahan.riders.spring.practice.blog.controller.dto.PostsResponse"*/-->
     <li th:each="post : ${posts.posts}">
         <!--/*@thymesVar id="post" type="com.woowahan.riders.spring.practice.blog.controller.dto.PostResponse"*/-->
         <!--/*@thymesVar id="endpoint" type="java.lang.String"*/-->

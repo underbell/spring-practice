@@ -1,21 +1,23 @@
 package com.woowahan.riders.spring.practice.blog.controller;
 
+import com.woowahan.riders.spring.practice.blog.controller.dto.CommentsResponse;
 import com.woowahan.riders.spring.practice.blog.controller.dto.PostRequest;
 import com.woowahan.riders.spring.practice.blog.controller.dto.PostResponse;
 import com.woowahan.riders.spring.practice.blog.controller.dto.PostsResponse;
-import com.woowahan.riders.spring.practice.blog.domain.Post;
+import com.woowahan.riders.spring.practice.blog.domain.Comment;
 import com.woowahan.riders.spring.practice.blog.domain.Writer;
+import com.woowahan.riders.spring.practice.blog.service.CommentOfPostService;
 import com.woowahan.riders.spring.practice.blog.service.DummyAuthenticatedService;
 import com.woowahan.riders.spring.practice.blog.service.PostPublishService;
 import com.woowahan.riders.spring.practice.blog.service.PostSubscriptionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.view.RedirectView;
 
+import java.util.List;
 import java.util.stream.Collectors;
 
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
@@ -35,6 +37,8 @@ public class WebBlogPostController {
     private PostSubscriptionService postSubscriptionService;
     @Autowired
     private PostPublishService postPublishService;
+    @Autowired
+    private CommentOfPostService commentOfPostService;
     @Autowired
     private DummyAuthenticatedService dummyAuthenticatedService;
 
@@ -68,8 +72,12 @@ public class WebBlogPostController {
 
     @RequestMapping(value = "{id}", method = GET)
     public String getPost(@PathVariable("id") Long id, Model model) {
-        Post post = postSubscriptionService.readOne(id).orElseThrow(NotFoundPostException::new);
+        PostResponse post = PostResponse.of(
+                postSubscriptionService.readOne(id).orElseThrow(NotFoundPostException::new));
+        Long postId = post.getId();
+        CommentsResponse comments = CommentsResponse.of(commentOfPostService.loadComments(postId));
         model.addAttribute("post", post);
+        model.addAttribute("comments", comments);
         return BLOG_POSTS_VIEW;
     }
 }
