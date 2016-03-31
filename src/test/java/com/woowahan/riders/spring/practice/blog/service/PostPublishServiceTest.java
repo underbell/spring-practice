@@ -3,6 +3,7 @@ package com.woowahan.riders.spring.practice.blog.service;
 import com.woowahan.riders.spring.practice.blog.domain.Post;
 import com.woowahan.riders.spring.practice.blog.domain.Site;
 import com.woowahan.riders.spring.practice.blog.domain.Writer;
+import com.woowahan.riders.spring.practice.blog.service.dto.PostResponse;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -22,8 +23,8 @@ public class PostPublishServiceTest {
     public void setUp() throws Exception {
         postPublishService = new PostPublishService() {
             @Override
-            public Optional<Post> writePost(Writer writer, String endpoint, String title, String content) {
-                return Optional.of(Post.of(writer, Site.of(writer, endpoint), title, content));
+            public Optional<PostResponse> writePost(Writer writer, String endpoint, String title, String content) {
+                return Optional.of(PostResponse.of(Post.of(writer, Site.of(writer, endpoint), title, content)));
             }
         };
     }
@@ -34,14 +35,13 @@ public class PostPublishServiceTest {
         Writer writer = new Writer();
         Site site = Site.of(writer, "sonegy");
         // When
-        Optional<Post> newPost = postPublishService.writePost(writer, site.getEndpoint(), "title", "content");
+        Optional<PostResponse> newPost = postPublishService.writePost(writer, site.getEndpoint(), "title", "content");
         // Then
         assertTrue(newPost.isPresent());
         newPost.ifPresent(post -> {
             assertThat(post.getTitle(), is("title"));
             assertThat(post.getContent(), is("content"));
-            assertThat(post.getSite().getEndpoint(), is(site.getEndpoint()));
-            assertThat(post.getWriter(), is(writer));
+            assertThat(post.getWriter().getId(), is(writer.getId()));
         });
     }
 }

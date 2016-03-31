@@ -1,4 +1,4 @@
-package com.woowahan.riders.spring.practice.blog.controller.dto;
+package com.woowahan.riders.spring.practice.blog.service.dto;
 
 import com.woowahan.riders.spring.practice.blog.domain.Post;
 
@@ -60,6 +60,10 @@ public class PostResponse {
 
     public void setCreatedDateTime(Date createdDateTime) {
         this.createdDateTime = createdDateTime;
+    }
+
+    public WriterResponse getWriter() {
+        return writer;
     }
 
     @Override

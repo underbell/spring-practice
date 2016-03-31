@@ -3,6 +3,8 @@ package com.woowahan.riders.spring.practice.blog.service;
 import com.woowahan.riders.spring.practice.blog.domain.Post;
 import com.woowahan.riders.spring.practice.blog.domain.Site;
 import com.woowahan.riders.spring.practice.blog.domain.Writer;
+import com.woowahan.riders.spring.practice.blog.service.dto.PostResponse;
+import com.woowahan.riders.spring.practice.blog.service.dto.PostsResponse;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -27,15 +29,15 @@ public class PostSubscriptionServiceTest {
     public void setUp() throws Exception {
         postSubscriptionService = new PostSubscriptionService() {
             @Override
-            public Optional<Post> readOne(Long id) {
+            public Optional<PostResponse> loadPost(Long id) {
                 if (id == 1l) {
-                    return Optional.of(post1);
+                    return Optional.of(PostResponse.of(post1));
                 }
                 return Optional.empty();
             }
 
             @Override
-            public List<Post> readAll(String endpoint) {
+            public PostsResponse loadPosts(String endpoint) {
                 return null;
             }
         };
@@ -46,7 +48,7 @@ public class PostSubscriptionServiceTest {
         // Given
         Long postId = 1l;
         // When
-        Optional<Post> postOptional = postSubscriptionService.readOne(postId);
+        Optional<PostResponse> postOptional = postSubscriptionService.loadPost(postId);
         // Then
         assertTrue(postOptional.isPresent());
         postOptional.ifPresent(post -> {

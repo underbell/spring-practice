@@ -1,6 +1,7 @@
 package com.woowahan.riders.spring.practice.blog.controller;
 
 import com.woowahan.riders.spring.practice.SpringPracticeApplication;
+import com.woowahan.riders.spring.practice.blog.service.ex.NotFoundPostException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

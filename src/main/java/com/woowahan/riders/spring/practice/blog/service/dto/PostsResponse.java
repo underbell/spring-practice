@@ -1,4 +1,4 @@
-package com.woowahan.riders.spring.practice.blog.controller.dto;
+package com.woowahan.riders.spring.practice.blog.service.dto;
 
 import java.util.List;
 

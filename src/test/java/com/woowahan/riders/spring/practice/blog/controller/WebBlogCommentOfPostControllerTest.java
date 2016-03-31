@@ -11,6 +11,8 @@ import com.woowahan.riders.spring.practice.blog.repository.CommentRepository;
 import com.woowahan.riders.spring.practice.blog.service.CommentOfPostService;
 import com.woowahan.riders.spring.practice.blog.service.DummyAuthenticatedService;
 import com.woowahan.riders.spring.practice.blog.service.PostPublishService;
+import com.woowahan.riders.spring.practice.blog.service.dto.CommentResponse;
+import com.woowahan.riders.spring.practice.blog.service.dto.PostResponse;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -73,7 +75,7 @@ public class WebBlogCommentOfPostControllerTest {
     public void testWriteComment() throws Exception {
         // Given
         Writer writer = dummyAuthenticatedService.getWriterBy("sonegy");
-        Post post = postPublishService.writePost(writer, "sonegy", "t", "c").orElseThrow(RuntimeException::new);
+        PostResponse post = postPublishService.writePost(writer, "sonegy", "t", "c").orElseThrow(RuntimeException::new);
         HtmlPage postPage = webClient.getPage("http://localhost/sonegy/posts/" + post.getId());
         HtmlForm form = postPage.getHtmlElementById("commentForm");
         DomNode textarea = form.querySelector("textarea");
@@ -85,7 +87,7 @@ public class WebBlogCommentOfPostControllerTest {
         // Then
         assertThat(path, is("/sonegy/posts/" + post.getId()));
         List<Comment> comments = new ArrayList<>();
-        commentRepository.findAll(QComment.comment.post.eq(post)).forEach(comments::add);
+        commentRepository.findAll(QComment.comment.post.id.eq(post.getId())).forEach(comments::add);
         assertThat(comments.size(), is(1));
         assertThat(comments.stream().findFirst().get().getContent(), is("comment1"));
     }
@@ -94,8 +96,8 @@ public class WebBlogCommentOfPostControllerTest {
     public void testUpdateComment() throws Exception {
         // Given
         Writer writer = dummyAuthenticatedService.getWriterBy("sonegy");
-        Post post = postPublishService.writePost(writer, "sonegy", "t", "c").orElseThrow(RuntimeException::new);
-        Comment comment = commentOfPostService.writeComment(post.getId(), "comment1").get();
+        PostResponse post = postPublishService.writePost(writer, "sonegy", "t", "c").orElseThrow(RuntimeException::new);
+        CommentResponse comment = commentOfPostService.writeComment(post.getId(), "comment1").get();
         HtmlPage postPage = webClient.getPage("http://localhost/sonegy/posts/" + post.getId());
         // When
         HtmlElement commentsEl = postPage.getHtmlElementById("comments");
@@ -107,6 +109,6 @@ public class WebBlogCommentOfPostControllerTest {
         // Then
         assertThat(click.getWebResponse().getStatusCode(), is(200));
         assertThat(click.getUrl().getPath(), is("/sonegy/posts/" + post.getId()));
-        assertThat(commentOfPostService.loadComments(post.getId()).get(0).getContent(), is("updated comment"));
+        assertThat(commentOfPostService.loadComments(post.getId()).getComments().get(0).getContent(), is("updated comment"));
     }
 }

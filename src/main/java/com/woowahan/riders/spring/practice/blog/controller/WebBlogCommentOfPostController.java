@@ -2,6 +2,7 @@ package com.woowahan.riders.spring.practice.blog.controller;
 
 import com.woowahan.riders.spring.practice.blog.controller.dto.CommentRequest;
 import com.woowahan.riders.spring.practice.blog.service.CommentOfPostService;
+import com.woowahan.riders.spring.practice.blog.service.ex.NotFoundCommentException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,14 +28,13 @@ public class WebBlogCommentOfPostController {
     @RequestMapping(value = "form", method = RequestMethod.PUT)
     public RedirectView updateComment(
             @PathVariable("endpoint") String endpoint,
-            CommentRequest comment) {
+            CommentRequest comment) throws NotFoundCommentException {
         logger.debug("updateComment:{}", comment);
         return commentOfPostService.updateComment(comment.getId(), comment.getContent())
-                .map(writtenComment -> writtenComment.getPost())
-                .map(post -> post.getId())
+                .map(writtenComment -> writtenComment.getPostId())
                 .map(_postId -> "../../" + _postId)
                 .map(RedirectView::new)
-                .orElseThrow(RuntimeException::new);
+                .orElseThrow(NotFoundCommentException::new);
     }
 
     /**
@@ -54,10 +54,9 @@ public class WebBlogCommentOfPostController {
             HttpServletRequest request) {
         logger.debug("writeComment:{}", comment);
         return commentOfPostService.writeComment(postId, comment.getContent())
-                .map(writtenComment -> writtenComment.getPost())
-                .map(post -> post.getId())
+                .map(writtenComment -> writtenComment.getPostId())
                 .map(_postId -> "../../" + _postId)
                 .map(RedirectView::new)
-                .orElseThrow(RuntimeException::new);
+                .orElseThrow(NotFoundCommentException::new);
     }
 }

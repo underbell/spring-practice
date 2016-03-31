@@ -1,8 +1,8 @@
 package com.woowahan.riders.spring.practice.blog.controller;
 
 import com.woowahan.riders.spring.practice.blog.controller.dto.PostRequest;
-import com.woowahan.riders.spring.practice.blog.controller.dto.PostResponse;
-import com.woowahan.riders.spring.practice.blog.controller.dto.PostsResponse;
+import com.woowahan.riders.spring.practice.blog.service.dto.PostResponse;
+import com.woowahan.riders.spring.practice.blog.service.dto.PostsResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-import java.util.function.Consumer;
 
 /**
  * Created by leejaeil on 2016. 3. 16..
