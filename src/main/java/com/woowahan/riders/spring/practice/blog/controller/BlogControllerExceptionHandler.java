@@ -1,5 +1,6 @@
 package com.woowahan.riders.spring.practice.blog.controller;
 
+import com.woowahan.riders.spring.practice.blog.service.ex.NotFoundPostException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;

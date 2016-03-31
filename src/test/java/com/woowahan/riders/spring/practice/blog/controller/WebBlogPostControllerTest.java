@@ -9,6 +9,7 @@ import com.woowahan.riders.spring.practice.blog.service.CommentOfPostService;
 import com.woowahan.riders.spring.practice.blog.service.DummyAuthenticatedService;
 import com.woowahan.riders.spring.practice.blog.service.PostPublishService;
 import com.woowahan.riders.spring.practice.blog.service.PostSubscriptionService;
+import com.woowahan.riders.spring.practice.blog.service.dto.PostResponse;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -101,7 +102,7 @@ public class WebBlogPostControllerTest {
         HtmlPage newMessagePage = submit.click();
         // Then
         assertThat(newMessagePage.getUrl().toString(), is(startsWith("http://localhost/sonegy/posts/")));
-        Post savedPost = postSubscriptionService.readOne(
+        PostResponse savedPost = postSubscriptionService.loadPost(
                 Long.parseLong(newMessagePage.getUrl().getPath().substring("/sonegy/posts/".length())))
                 .get();
         assertThat(savedPost.getTitle(), is("test title"));
@@ -112,7 +113,7 @@ public class WebBlogPostControllerTest {
     public void testGetPost() throws Exception {
         // Given
         Writer writer = dummyAuthenticatedService.getWriterBy("sonegy");
-        Post post = postPublishService.writePost(writer, "sonegy", "t", "c").orElseThrow(RuntimeException::new);
+        PostResponse post = postPublishService.writePost(writer, "sonegy", "t", "c").orElseThrow(RuntimeException::new);
         commentOfPostService.writeComment(post.getId(), "comment1");
         commentOfPostService.writeComment(post.getId(), "comment2");
         // When

@@ -23,11 +23,11 @@
     <input type="submit" />
 </form>
 <ol id="comments">
-    <!--/*@thymesVar id="comments" type="com.woowahan.riders.spring.practice.blog.controller.dto.CommentsResponse"*/-->
-    <!--/*@thymesVar id="comment" type="com.woowahan.riders.spring.practice.blog.controller.dto.CommentsResponse.CommentResponse"*/-->
+    <!--/*@thymesVar id="comments" type="com.woowahan.riders.spring.practice.blog.service.dto.CommentsResponse"*/-->
+    <!--/*@thymesVar id="comment" type="com.woowahan.riders.spring.practice.blog.service.dto.CommentsResponse.CommentResponse"*/-->
     <li th:each="comment,iterStat : ${comments.comments}">
         <div class="_comment" th:text="${comment.content}">테스트문장.</div>
-        <!--/*@thymesVar id="c" type="com.woowahan.riders.spring.practice.blog.controller.dto.CommentsResponse.CommentResponse"*/-->
+        <!--/*@thymesVar id="c" type="com.woowahan.riders.spring.practice.blog.service.dto.CommentsResponse.CommentResponse"*/-->
         <form action="#" method="PUT" th:action="@{{postId}/comments/form(postId=${comment.postId})}" th:method="PUT">
             <input type="hidden" name="id" th:value="${comment.id}" />
             <input type="hidden" name="postId" th:value="${comment.postId}" />

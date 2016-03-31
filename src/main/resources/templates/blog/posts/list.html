@@ -5,7 +5,7 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 </head>
 <body>
-<!--/*@thymesVar id="posts" type="com.woowahan.riders.spring.practice.blog.controller.dto.PostsResponse"*/-->
+<!--/*@thymesVar id="posts" type="com.woowahan.riders.spring.practice.blog.service.dto.PostsResponse"*/-->
 <p>
     <a href="form.html" th:href="@{posts/form}">글 쓰기</a>
 </p>
@@ -14,7 +14,7 @@
 </p>
 <ul id="posts">
     <li th:each="post : ${posts.posts}">
-        <!--/*@thymesVar id="post" type="com.woowahan.riders.spring.practice.blog.controller.dto.PostResponse"*/-->
+        <!--/*@thymesVar id="post" type="com.woowahan.riders.spring.practice.blog.service.dto.PostResponse"*/-->
         <!--/*@thymesVar id="endpoint" type="java.lang.String"*/-->
         <a th:href="@{/{endpoint}/posts/{id}(endpoint=${endpoint},id=${post.id})}" th:text="${post.title}"></a>
     </li>
